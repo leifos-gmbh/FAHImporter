@@ -44,8 +44,6 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 				$this->logger->debug('Ignoring ' . (string) $group_element->description->short .' for course import.');
 				continue;
 			}
-			
-			
 			$course_info = [];
 			$course_info['title'] = (string) $group_element->description->short;
 			$course_info['parent_id'] = (string) $group_element->relationship->sourcedid->id;
@@ -132,9 +130,24 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		
 		if($do_create)
 		{
-			$this->logger->info('Calling create for: '. $writer->xmlDumpMem(false));
-			
 			$parent_id = $this->lookupParentId($crs_info['parent_id'], 'cat');
+
+			$new_ref_id = $this->copyTemplateCourse($crs_info, $parent_id);
+			if($new_ref_id)
+			{
+				// update course data
+				$this->soap->call(
+						'updateCourse',
+						array(
+							$this->soap_session,
+							$new_ref_id,
+							$writer->xmlDumpMem(false)
+						)
+				);
+				return true;
+			}
+			// create default course by xml
+			$this->logger->info('Calling create for: '. $writer->xmlDumpMem(false));
 			$this->soap->call(
 					'addCourse',
 					array(
@@ -165,6 +178,89 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 			);
 			
 		}
+	}
+	
+	/**
+	 * Copy template course
+	 * @param type $crs_info
+	 * @param type $parent_id
+	 * throws ilSaxParserException
+	 */
+	protected function copyTemplateCourse($crs_info, $parent_id)
+	{
+		$template_id = ilFAHMappings::getInstance()->getTemplateForTitle($crs_info['title']);
+		if(!$template_id)
+		{
+			$this->logger->info('No mapping found for crs title: ' . $crs_info['title']);
+			return 0;
+		}
+		$this->logger->info('Found mapping template course '. $template_id.' for title: ' . $crs_info['title']);
+		
+		$copy_writer = new ilXmlWriter();
+		$copy_writer->xmlStartTag(
+			'Settings', 
+			array(
+				'source_id' => $template_id,
+				'target_id' => $parent_id,
+				'default_action' => 'COPY'
+			)
+		);
+		
+		$node_data = $GLOBALS['DIC']->repositoryTree()->getNodeData($template_id);
+		foreach($GLOBALS['DIC']->repositoryTree()->getSubTree($node_data,false) as $node)
+		{
+			$copy_writer->xmlElement(
+				'Option',
+				array(
+					'id' => $node,
+					'action' => 'COPY'
+				)
+			);
+		}
+		
+		$copy_writer->xmlEndTag('Settings');
+		$this->logger->dump($copy_writer->xmlDumpMem(true));
+		
+		include_once './webservice/soap/classes/class.ilCopyWizardSettingsXMLParser.php';
+		$xml_parser = new ilCopyWizardSettingsXMLParser($copy_writer->xmlDumpMem(false));
+		try {
+			$xml_parser->startParsing();
+		} 
+		catch (ilSaxParserException $se)
+		{
+			$this->logger->error($se->getMessage());
+			throw $se;
+		}
+
+		$options = $xml_parser->getOptions();
+		
+		$this->logger->dump($options);
+		
+		$source_object = ilObjectFactory::getInstanceByRefId($template_id);
+		if($source_object instanceof ilContainer) 
+		{
+			$session_id = $GLOBALS['ilAuthSession']->getId();
+			$client_id = IL_CLIENT_ID;
+			
+			// call container clone
+			$ret = $source_object->cloneAllObject(
+				$session_id,
+				$client_id,
+				$source_object->getType(),
+				$parent_id,
+				$template_id,
+				$options, 
+				false
+			);
+			
+			
+			
+			if(is_array($ret))
+			{
+				return $ret['ref_id'];
+			}
+		}
+		return 0;
 	}
 }
 ?>

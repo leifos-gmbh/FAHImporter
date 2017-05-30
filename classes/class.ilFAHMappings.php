@@ -52,6 +52,22 @@ class ilFAHMappings
 	}
 	
 	/**
+	 * Get template for title
+	 * @param type $a_title
+	 */
+	public function getTemplateForTitle($a_title)
+	{
+		foreach($this->getMappings() as $mapping)
+		{
+			if(preg_match('/^'.$mapping->getPrefix().'/', $a_title))
+			{
+				return $mapping->getTemplate();
+			}
+		}
+		return 0;
+	}
+	
+	/**
 	 * Read
 	 */
 	public function read()

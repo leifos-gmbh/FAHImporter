@@ -81,7 +81,5 @@ class ilFAHMappingTable extends ilTable2GUI
 		
 		$this->setData($data);
 	}
-	
-	
 }
 ?>
