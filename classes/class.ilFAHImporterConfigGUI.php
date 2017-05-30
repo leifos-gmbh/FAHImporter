@@ -4,9 +4,12 @@
 
 include_once './Services/Component/classes/class.ilPluginConfigGUI.php';
 
+
+
 /**
  * Description of class
  *
+ * @ilCtrl_Calls ilFAHImporterConfigGUI: ilPropertyFormGUI
  * @author Stefan Meyer <smeyer.ilias@gmx.de>
  */
 class ilFAHImporterConfigGUI extends ilPluginConfigGUI
@@ -23,6 +26,12 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 			'settings',
 			ilFAHImporterPlugin::getInstance()->txt('tab_settings'),
 			$GLOBALS['ilCtrl']->getLinkTarget($this,'configure')
+		);
+		
+		$ilTabs->addTab(
+			'mappings',
+			ilFAHImporterPlugin::getInstance()->txt('tab_mappings'),
+			$GLOBALS['ilCtrl']->getLinkTarget($this,'mappings')
 		);
 		
 		$ilTabs->addTab(
@@ -294,7 +303,107 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 		}
 		ilUtil::sendFailure($lng->txt('err_check_input'));
 		$this->import($form);
+	}
+	
+	/**
+	 * Show course template mappings
+	 */
+	protected function mappings()
+	{
+		$GLOBALS['DIC']->tabs()->activateTab('mappings');
+
+		$GLOBALS['DIC']->toolbar()->addButton(
+			$this->getPluginObject()->txt('add_new_mapping'),
+			$GLOBALS['DIC']->ctrl()->getLinkTarget($this,'addMapping')
+		);
 		
+		$map_table = new ilFAHMappingTable($this,'mappings');
+		$map_table->init();
+		$map_table->parse();
+		
+		$GLOBALS['DIC']->ui()->mainTemplate()->setContent($map_table->getHTML());
+	}
+	
+	
+	/**
+	 * Show add mapping
+	 * @param ilPropertyFormGUI $form
+	 */
+	protected function addMapping(ilPropertyFormGUI $form = null)
+	{
+		$GLOBALS['DIC']->tabs()->clearTargets();
+		$GLOBALS['DIC']->tabs()->setBackTarget(
+			$GLOBALS['DIC']->language()->txt('back'),
+			$GLOBALS['DIC']->ctrl()->getLinkTarget($this,'mappings')
+		);
+		
+		if(!$form instanceof ilPropertyFormGUI)
+		{
+			$form = $this->initMappingForm();
+		}
+		$GLOBALS['DIC']->ui()->mainTemplate()->setContent($form->getHTML());
+	}
+	
+	/**
+	 * Init mapping form
+	 */
+	protected function initMappingForm()
+	{
+		include_once './Services/Form/classes/class.ilPropertyFormGUI.php';
+		$form = new ilPropertyFormGUI();
+		$form->setFormAction($GLOBALS['DIC']->ctrl()->getFormAction($this));
+		$form->setTitle($this->getPluginObject()->txt('tbl_new_mapping'));
+		
+		$prefix = new ilTextInputGUI($this->getPluginObject()->txt('mapping_crs_prefix'), 'prefix');
+		$prefix->setSize(32);
+		$prefix->setRequired(true);
+		$form->addItem($prefix);
+		
+		$number = new ilNumberInputGUI($this->getPluginObject()->txt('mapping_crs_template'), 'template');
+		$number->setInfo($this->getPluginObject()->txt('mapping_crs_template_info'));
+		$number->setRequired(true);
+		$number->setMinValue(1);
+		$number->setSize(7);
+		$number->setMaxLength(7);
+		$form->addItem($number);
+		
+		
+		$form->addCommandButton('saveMapping', $GLOBALS['DIC']->language()->txt('save'));
+		$form->addCommandButton('mappings', $GLOBALS['DIC']->language()->txt('cancel'));
+		return $form;
+	}
+	
+	/**
+	 * Save mapping
+	 * @return type
+	 */
+	protected function saveMapping()
+	{
+		$form = $this->initMappingForm();
+		if($form->checkInput())
+		{
+			$map = new ilFAHMapping();
+			$map->setPrefix($form->getInput('prefix'));
+			$map->setTemplate($form->getInput('template'));
+			$map->save();
+			
+			ilUtil::sendSuccess($GLOBALS['DIC']->language()->txt('settings_saved'));
+			$GLOBALS['DIC']->ctrl()->redirect($GLOBALS['DIC']->ctrl()->getLinkTarget($this,'mappings'));
+		}
+		
+		ilUtil::sendFailure($GLOBALS['DIC']->language()->txt('err_check_input'));
+		return $this->addMapping($form);
+	}
+	
+	protected function deleteMappings()
+	{
+		foreach((array) $_POST['mapping_id'] as $mapping_id)
+		{
+			$map = new ilFAHMapping($mapping_id);
+			$map->delete();
+		}
+		ilUtil::sendSuccess($GLOBALS['DIC']->language()->txt('settings_saved'));
+		$GLOBALS['DIC']->ctrl()->redirect($this,'mappings');
 	}
 	
 	

@@ -18,3 +18,12 @@ import_success#:#Die Aktualisierung wurde erfolgreich durchgeführt
 err_import_locked#:#Der Import kann nicht gestartet werden, da ein anderer Importvorgang läuft.
 err_import_no_input#:#Ein Import konnte nicht durchgeführt werden, da keine neue Inmportdatei vorliegt.
 type_membership#:#Mitgliedschaften
+add_new_mapping#:#Neue Kurszuordnung
+map_col_template#:#Template-Kurs
+map_col_prefix#:#Prefix
+map_table_title#:#Kurszuordnungen
+tbl_new_mapping#:#Neue Zuordnung erstellen
+mapping_crs_prefix#:#Prefix für Zuordnung
+mapping_crs_template#:#Template-Kurs
+mapping_crs_template_info#:#Bitte geben Sie die ref_id eines Kurses ein.
+tab_mappings#:#Kurszuordnungen
