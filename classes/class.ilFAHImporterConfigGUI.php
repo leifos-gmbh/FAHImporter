@@ -245,6 +245,10 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 		$mem = new ilCheckboxInputGUI($this->getPluginObject()->txt('type_membership'),'mem');
 		$mem->setValue(ilFAHImporter::TYPE_MEM);
 		$sel->addSubItem($mem);
+		
+		$info = new ilCheckboxInputGUI($this->getPluginObject()->txt('type_crs_info'),'crsinfo');
+		$info->setValue(ilFAHImporter::TYPE_CRS_INFO);
+		$sel->addSubItem($info);
 
 		$form->setShowTopButtons(false);
 
@@ -285,6 +289,10 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 				if($form->getInput('mem'))
 				{
 					$import->addType(ilFAHImporter::TYPE_MEM);
+				}
+				if($form->getInput('crsinfo'))
+				{
+					$import->addType(ilFAHImporter::TYPE_CRS_INFO);
 				}
 			}
 			

@@ -27,3 +27,4 @@ mapping_crs_prefix#:#Prefix für Zuordnung
 mapping_crs_template#:#Template-Kurs
 mapping_crs_template_info#:#Bitte geben Sie die ref_id eines Kurses ein.
 tab_mappings#:#Kurszuordnungen
+type_crs_info#:#Kursinformationen

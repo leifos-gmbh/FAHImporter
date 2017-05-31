@@ -13,6 +13,7 @@ class ilFAHImporter
 	private static $instance = null;
 
 	const BASE_FILENAME_PREFIX = 'fronter';
+	const BASE_FILENAME_PREFIX_LEHR = 'Lehr';
 	
 	const IMPORT_ALL = 1;
 	const IMPORT_SELECTED = 2;
@@ -22,6 +23,7 @@ class ilFAHImporter
 	const TYPE_CRS = 'crs';
 	const TYPE_GRP = 'grp';
 	const TYPE_MEM = 'mem';
+	const TYPE_CRS_INFO = 'crsinfo';
 	
 	/**
 	 * @var ilLogger
@@ -99,7 +101,15 @@ class ilFAHImporter
 		foreach($input as $input_file)
 		{
 			try {
-				$this->handleImportForFile($input_file);
+				if($this->isCourseInfoFile($input_file))
+				{
+					$info_importer = new ilFAHCourseInfoComponentImporter();
+					$info_importer->import($input_file);
+				}
+				else
+				{
+					$this->handleImportForFile($input_file);
+				}
 			}
 			catch(Exception $e) {
 				$this->releaseLock();
@@ -146,6 +156,10 @@ class ilFAHImporter
 						$membership_importer = new ilFAHMembershipComponentImporter();
 						$membership_importer->import($a_file);
 						break;
+					
+					case self::TYPE_CRS_INFO:
+						$this->logger->debug('Ignoring course info import for generic xml.');
+						break;
 				}
 			}
 			return true;
@@ -170,9 +184,28 @@ class ilFAHImporter
 				$this->logger->info('File: '. $file->getFilename().' is a valid input file');
 				$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
 			}
+			if(substr($file, 0, 4) == self::BASE_FILENAME_PREFIX_LEHR)
+			{
+				$this->logger->info('File: '. $file->getFilename().' is a valid course info file');
+				$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
+			}
 		}
 		asort($files);
 		return $files;
+	}
+	
+	/**
+	 * Is course info file
+	 * @param type $a_file
+	 */
+	protected function isCourseInfoFile($a_file)
+	{
+		$basename = basename($a_file);
+		if(substr($basename, 0,4) == self::BASE_FILENAME_PREFIX_LEHR)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	/**
