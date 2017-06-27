@@ -396,7 +396,7 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 			$map->save();
 			
 			ilUtil::sendSuccess($GLOBALS['DIC']->language()->txt('settings_saved'));
-			$GLOBALS['DIC']->ctrl()->redirect($GLOBALS['DIC']->ctrl()->getLinkTarget($this,'mappings'));
+			$GLOBALS['DIC']->ctrl()->redirect($this,'mappings');
 		}
 		
 		ilUtil::sendFailure($GLOBALS['DIC']->language()->txt('err_check_input'));
