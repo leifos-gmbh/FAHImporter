@@ -32,6 +32,7 @@ class ilFAHImporterSettings
 	private $cron_interval = 5;
 	private $cron_last_execution = 0;
 	private $import_directory = '';
+	private $default_course = 0;
 	
 	
 	/**
@@ -161,6 +162,25 @@ class ilFAHImporterSettings
 		$this->getStorage()->set('cron_last_execution',time());
 	}
 	
+	/**
+	 * Set default course
+	 * @param int $a_ref_id
+	 */
+	public function setDefaultCourse($a_ref_id)
+	{
+		$this->default_course = $a_ref_id;
+	}
+	
+	/**
+	 * Get default course
+	 * @return type
+	 */
+	public function getDefaultCourse()
+	{
+		return $this->default_course;
+	}
+
+
 
 	/**
 	 * Update settings
@@ -174,6 +194,7 @@ class ilFAHImporterSettings
 		$this->getStorage()->set('soap_user',$this->getSoapUser());
 		$this->getStorage()->set('soap_pass',$this->getSoapPass());
 		$this->getStorage()->set('cron_interval',$this->getCronInterval());
+		$this->getStorage()->set('default_course',$this->getDefaultCourse());
 		
 	}
 	
@@ -190,6 +211,7 @@ class ilFAHImporterSettings
 		$this->setSoapPass($this->getStorage()->get('soap_pass', $this->getSoapPass()));
 		$this->setCronInterval($this->getStorage()->get('cron_interval',$this->getCronInterval()));
 		$this->cron_last_execution = $this->getStorage()->get('cron_last_execution',0);
+		$this->default_course = $this->getStorage()->get('default_course',$this->getDefaultCourse());
 		
 	}
 }

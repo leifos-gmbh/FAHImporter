@@ -12,7 +12,7 @@ class ilFAHImporter
 {
 	private static $instance = null;
 
-	const BASE_FILENAME_PREFIX = 'fronter';
+	const BASE_FILENAME_PREFIX = 'ilias';
 	const BASE_FILENAME_PREFIX_LEHR = 'Lehr';
 	
 	const IMPORT_ALL = 1;
@@ -179,7 +179,10 @@ class ilFAHImporter
 		foreach(new DirectoryIterator($this->settings->getImportDirectory()) as $file)
 		{
 			$this->logger->debug('Found file: ' . $file->getFilename());
-			if(substr($file->getFilename(), 0, 7) == self::BASE_FILENAME_PREFIX)
+			if(
+				(substr($file->getFilename(), 0, 5) == self::BASE_FILENAME_PREFIX) &&
+				(strcmp($file->getExtension(),'xml') === 0)
+			)
 			{
 				$this->logger->info('File: '. $file->getFilename().' is a valid input file');
 				$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();

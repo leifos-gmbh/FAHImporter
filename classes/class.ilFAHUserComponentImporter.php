@@ -40,13 +40,26 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
 		$writer->xmlStartTag('Users');
 		foreach($this->root->person as $user)
 		{
+			$action = 'Insert';
+			
+			$user_exists = (bool) count(
+				ilObject::lookupObjIdsByImportId(
+					(string) $user->sourcedid->id,
+					'usr'
+				)
+			);
+			if($user_exists)
+			{
+				$action = 'Update';
+			}
+			
 			// User
 			$writer->xmlStartTag(
 				'User',
 				array(
 					'ImportId' => (string) $user->sourcedid->id,
 					'Language' => 'de',
-					'Action' => 'Insert'
+					'Action' => $action
 				)
 			);
 			$writer->xmlElement(

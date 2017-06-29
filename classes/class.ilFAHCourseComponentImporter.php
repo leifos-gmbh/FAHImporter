@@ -126,6 +126,11 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		);
 		$writer->xmlEndTag('General');
 		$writer->xmlEndTag('MetaData');
+		$writer->xmlStartTag('Settings');
+		$writer->xmlStartTag('Availability');
+		$writer->xmlElement('Unlimited');
+		$writer->xmlEndTag('Availability');
+		$writer->xmlEndTag('Settings');
 		$writer->xmlEndTag('Course');
 		
 		if($do_create)
@@ -191,9 +196,16 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		$template_id = ilFAHMappings::getInstance()->getTemplateForTitle($crs_info['title']);
 		if(!$template_id)
 		{
-			$this->logger->info('No mapping found for crs title: ' . $crs_info['title']);
-			return 0;
+			$this->logger->info('No mapping found for crs title: ' . $crs_info['title'].', using default course template');
+			$template_id = $this->settings->getDefaultCourse();
 		}
+		if(!$template_id)
+		{
+			$this->logger->fatal('No default course template found');
+			return false;
+		}
+		
+		
 		$this->logger->info('Found mapping template course '. $template_id.' for title: ' . $crs_info['title']);
 		
 		$copy_writer = new ilXmlWriter();

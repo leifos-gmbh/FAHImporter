@@ -28,3 +28,5 @@ mapping_crs_template#:#Template-Kurs
 mapping_crs_template_info#:#Bitte geben Sie die ref_id eines Kurses ein.
 tab_mappings#:#Kurszuordnungen
 type_crs_info#:#Kursinformationen
+default_course_template#:#Standard-Kursvorlage
+default_course_template_info#:#Kurstemplate für zu importierende Kurse, für deren ID keine Zuordnung definiert ist. Siehe "Kurszuordnungen".

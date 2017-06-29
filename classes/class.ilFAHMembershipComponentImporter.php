@@ -82,6 +82,9 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			}
 		}
 		
+		// deassign connection user
+		$part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
+		
 		
 		// desassign all users with import id that are not mentioned in membership info
 		foreach($part->getParticipants() as $user_id)
