@@ -144,6 +144,14 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 		$form->addItem($cron_i);
 		
 		
+		$default_course = new ilNumberInputGUI($this->getPluginObject()->txt('default_course_template'),'template_course');
+		$default_course->setSize(7);
+		$default_course->setInfo($this->getPluginObject()->txt('default_course_template_info'));
+		$default_course->setRequired(true);
+		$default_course->setMinValue(1);
+		$default_course->setValue($settings->getDefaultCourse());
+		$form->addItem($default_course);
+		
 		$form->setShowTopButtons(false);
 		
 		return $form;
@@ -168,6 +176,7 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 			$settings->setCronInterval($form->getInput('cron_interval'));
 			$settings->setImportDirectory($form->getInput('import_directory'));
 			$settings->setBackupDir($form->getInput('backup'));
+			$settings->setDefaultCourse($form->getInput('template_course'));
 			
 			$settings->update();
 				
