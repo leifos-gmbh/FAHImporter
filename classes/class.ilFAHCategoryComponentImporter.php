@@ -69,9 +69,9 @@ class ilFAHCategoryComponentImporter extends ilFAHComponentImporter
 	protected function isCategory($a_id)
 	{
 		$this->logger->debug('Validating ' . $a_id);
-		if(preg_match('/^[0-9]{4}_[A-Z]$/', $a_id))
+		if(preg_match('/^[0-9]{4}_R$/', $a_id))
 		{
-			$this->logger->debug($a_id . ' matches [0-9]{4}_[A-Z]');
+			$this->logger->debug($a_id . ' matches [0-9]{4}_R');
 			return true;
 		}
 		if(strcmp('Jahresprogramm', $a_id) === 0)
@@ -89,6 +89,7 @@ class ilFAHCategoryComponentImporter extends ilFAHComponentImporter
 			$this->logger->debug($a_id . ' matches Zielgruppen.');
 			return true;
 		}
+		$this->logger->info('Ignoring structural element: ' . $a_id);
 		return false;
 	}
 	

@@ -38,7 +38,7 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 	{
 		foreach($this->root->group as $group_element)
 		{
-			$this->logger->debug('Handling group: ' . (string) $group_element->description->short);
+			$this->logger->debug('Handling course: ' . (string) $group_element->description->short);
 			if(!$this->isCourse((string) $group_element->sourcedid->id))
 			{
 				$this->logger->debug('Ignoring ' . (string) $group_element->description->short .' for course import.');
@@ -76,7 +76,7 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 			$this->logger->debug($a_id .' seems to be a group');
 			return false;
 		}
-		if(preg_match('/[0-9]{2}\.[0-9]{3}/', $a_id))
+		if(preg_match('/[0-9]{2}\.[0-9]{3}\/[0-9]{3}\/[0-9]{4}_R/', $a_id))
 		{
 			$this->logger->debug($a_id . ' matches course pattern.');
 			return true;
@@ -136,7 +136,12 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		if($do_create)
 		{
 			$parent_id = $this->lookupParentId($crs_info['parent_id'], 'cat');
-
+			if(!$parent_id)
+			{
+				$this->logger->notice($crs_info['parent_id'].' is not imported. Ignoring course update.');
+				return false;
+			}
+			
 			$new_ref_id = $this->copyTemplateCourse($crs_info, $parent_id);
 			if($new_ref_id)
 			{
@@ -161,7 +166,6 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 						$writer->xmlDumpMem(false)
 					)
 			);
-			
 		}
 		else
 		{

@@ -42,6 +42,14 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			$membership_info = [];
 			$membership_info['id'] = (string) $membership_element->sourcedid->id;
 			
+			// ignore direct course membership assignments, since these only 
+			// assign groups
+			if(strcmp(substr($membership_info['id'],-2), '_R') === 0)
+			{
+				$this->logger->info('Ignoring direct course membership assignments.');
+				continue;
+			}
+			
 			$membership_info['members'] = [];
 			foreach($membership_element->member as $member_element)
 			{
@@ -59,6 +67,7 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 	{
 		$this->logger->dump($membership_info);
 		
+		$GLOBALS['DIC']->rbac()->review()->clearCaches();
 		
 		include_once './Services/Membership/classes/class.ilParticipants.php';
 		$obj_id = $this->lookupObjId($membership_info['id']);
@@ -81,10 +90,6 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				$parent_part = ilParticipants::getInstanceByObjId(ilObject::_lookupObjId($parent_ref_id));
 			}
 		}
-		
-		// deassign connection user
-		$part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
-		
 		
 		// desassign all users with import id that are not mentioned in membership info
 		foreach($part->getParticipants() as $user_id)
@@ -159,6 +164,7 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				$last_three = substr($membership_info['id'], -3);
 				if(strcmp($last_three, 'DOZ') === 0)
 				{
+					$this->logger->debug('Assign to parent course...');
 					if(!$parent_part->isAdmin($usr_id))
 					{
 						$this->logger->info('Assigned user as admin in parent course.');
@@ -170,6 +176,10 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 						$parent_part->add($usr_id, IL_CRS_MEMBER);
 					}
 				}
+			}
+			else
+			{
+				$this->logger->debug('Parent participants not found');
 			}
 		}
 	}

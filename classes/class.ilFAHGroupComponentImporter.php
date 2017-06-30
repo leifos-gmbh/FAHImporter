@@ -49,6 +49,8 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 			$group_info = [];
 			$group_info['title'] = (string) $group_element->description->short;
 			$group_info['parent_id'] = (string) $group_element->relationship->sourcedid->id;
+			$group_info['parent_id'] = $this->updateParentId($group_info['parent_id']);
+			
 			$group_info['id'] = (string) $group_element->sourcedid->id;
 			
 			try {
@@ -63,6 +65,24 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 	}
 	
 	/**
+	 * No "Benutzergruppen" required for ILIAS
+	 * @param string $a_parent_id
+	 * @return rewritten parent id
+	 */
+	protected function updateParentId($a_parent_id)
+	{
+		if(strcmp(substr($a_parent_id, -2),'_S') === 0)
+		{
+			$this->logger->debug($a_parent_id.': matches _S$ and is replaced by _R');
+			$a_parent_id = substr($a_parent_id,0, -1);
+			return $a_parent_id.'R';
+		}
+		$this->logger->debug('Parent id:_' . $a_parent_id .' is not replaced.');
+		return $a_parent_id;
+	}
+
+
+	/**
 	 * Check if object is category
 	 * @param type $a_title
 	 */
@@ -71,12 +91,14 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 		if(strcmp('AlleBenutzer', $a_id) === 0)
 		{
 			$this->logger->debug($a_id. ' matches "AlleBenutzer"');
-			return true;
+			$this->logger->info('Ignoring group:' . $a_id);
+			return false;
 		}
 		if(strcmp('AlleTeilnehmer', $a_id) === 0)
 		{
 			$this->logger->debug($a_id. ' matches "AlleTeilnehmer"');
-			return true;
+			$this->logger->info('Ignoring group:' . $a_id);
+			return false;
 		}
 		if(strcmp('AlleDozenten', $a_id) === 0)
 		{
@@ -86,7 +108,8 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 		if(strcmp('MitarbeiterLand_U', $a_id) === 0)
 		{
 			$this->logger->debug($a_id. ' matches "MitarbeiterLand_U"');
-			return true;
+			$this->logger->info('Ignoring group:' . $a_id);
+			return false;
 		}
 		
 		if(preg_match('/_TN$/', $a_id))
@@ -99,6 +122,8 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 			$this->logger->debug($a_id .' matches group pattern.');
 			return true;
 		}
+		
+		$this->logger->debug($a_id.': is not handled as group.');
 		return false;
 	}
 	
