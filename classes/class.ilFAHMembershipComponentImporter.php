@@ -182,6 +182,10 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				$this->logger->debug('Parent participants not found');
 			}
 		}
+		
+		// finally delete conenction user and currrent user
+		$part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
+		$part->delete($GLOBALS['DIC']->user()->getId());
 	}
 }
 ?>
