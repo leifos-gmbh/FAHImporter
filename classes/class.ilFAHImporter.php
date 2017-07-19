@@ -214,7 +214,7 @@ class ilFAHImporter
 				(strcmp($file->getExtension(),'xml') === 0)
 			)
 			{
-				if(preg_match('/ilias[0-9]{}8/', $file->getFilename()))
+				if(preg_match('/ilias[0-9]{8}.xml/', $file->getFilename()))
 				{
 					$this->logger->info('File: '. $file->getFilename().' is a valid input file');
 					$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
