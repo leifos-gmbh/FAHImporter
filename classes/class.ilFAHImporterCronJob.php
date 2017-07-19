@@ -61,9 +61,25 @@ class ilFAHImporterCronJob extends ilCronJob
 	{
 		$result = new ilCronJobResult();
 		
+		$import = ilFAHImporter::getInstance();
+		$import->enableBackup(true);
 		
-		
-		$result->setStatus(ilCronJobResult::STATUS_OK);
+		$import->addType(ilFAHImporter::TYPE_USR);
+		$import->addType(ilFAHImporter::TYPE_USR);
+		$import->addType(ilFAHImporter::TYPE_CAT);
+		$import->addType(ilFAHImporter::TYPE_CRS);
+		$import->addType(ilFAHImporter::TYPE_GRP);
+		$import->addType(ilFAHImporter::TYPE_MEM);
+		//$import->addType(ilFAHImporter::TYPE_CRS_INFO);
+		try 
+		{
+			$import->import();
+			$result->setStatus(ilCronJobResult::STATUS_OK);
+		}
+		catch(ilException $e)
+		{
+			$result->setStatus(ilCronJobResult::STATUS_CRASHED);
+		}
 		return $result;
 	}
 

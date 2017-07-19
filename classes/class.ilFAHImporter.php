@@ -37,6 +37,8 @@ class ilFAHImporter
 	
 	private $types = [];
 	
+	private $doBackup  = false;
+	
 	/**
 	 * singelton constructor
 	 */
@@ -56,6 +58,11 @@ class ilFAHImporter
 			return self::$instance;
 		}
 		return self::$instance = new self();
+	}
+	
+	public function enableBackup($a_stat)
+	{
+		$this->doBackup = $a_stat;
 	}
 	
 	/**
@@ -117,9 +124,32 @@ class ilFAHImporter
 			}
 		}
 		
+		// move to backup directory
+		if($this->doBackup)
+		{
+			$this->moveToBackup($input);
+		}
 		$this->releaseLock();
 	}
 	
+	
+	/**
+	 * move file to backup dir 
+	 */
+	protected function moveToBackup($files)
+	{
+		foreach((array) $files as $file)
+		{
+			if($this->isCourseInfoFile($file))
+			{
+				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
+				rename($file, $this->settings->getBackupDir().'/'.basename($file));
+			}
+		}
+		return true;
+	}
+
+
 	/**
 	 * Execute type importer
 	 * @param type $a_file
@@ -184,8 +214,15 @@ class ilFAHImporter
 				(strcmp($file->getExtension(),'xml') === 0)
 			)
 			{
-				$this->logger->info('File: '. $file->getFilename().' is a valid input file');
-				$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
+				if(preg_match('/ilias[0-9]{}8/', $file->getFilename()))
+				{
+					$this->logger->info('File: '. $file->getFilename().' is a valid input file');
+					$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
+				}
+				else
+				{
+					$this->logger->info('File: '. $file->getFilename().' is a NOT valid input file');
+				}
 			}
 			if(substr($file, 0, 4) == self::BASE_FILENAME_PREFIX_LEHR)
 			{
