@@ -127,7 +127,12 @@ class ilFAHImporter
 		// move to backup directory
 		if($this->doBackup)
 		{
+			$this->logger->debug('Starting backup of files.');
 			$this->moveToBackup($input);
+		}
+		else
+		{
+			$this->logger->debug('Backup disabled');
 		}
 		$this->releaseLock();
 	}
@@ -140,12 +145,18 @@ class ilFAHImporter
 	{
 		foreach((array) $files as $file)
 		{
-			if($this->isCourseInfoFile($file))
+			$this->logger->debug('Files for backup: ' . $file);
+			if(!$this->isCourseInfoFile($file))
 			{
 				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
 				rename($file, $this->settings->getBackupDir().'/'.basename($file));
 			}
+			else
+			{
+				$this->logger->debug($file.' is a course info file.');
+			}
 		}
+		$this->logger->debug('Backup completed');
 		return true;
 	}
 

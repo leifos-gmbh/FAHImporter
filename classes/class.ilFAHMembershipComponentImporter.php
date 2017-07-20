@@ -186,6 +186,12 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 		// finally delete conenction user and currrent user
 		$part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
 		$part->delete($GLOBALS['DIC']->user()->getId());
+		
+		if($parent_part instanceof ilParticipants)
+		{
+			$parent_part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
+			$parent_part->delete($GLOBALS['DIC']->user()->getId());
+		}
 	}
 }
 ?>
