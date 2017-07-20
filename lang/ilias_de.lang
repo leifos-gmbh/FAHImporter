@@ -30,3 +30,4 @@ tab_mappings#:#Kurszuordnungen
 type_crs_info#:#Kursinformationen
 default_course_template#:#Standard-Kursvorlage
 default_course_template_info#:#Kurstemplate für zu importierende Kurse, für deren ID keine Zuordnung definiert ist. Siehe "Kurszuordnungen".
+cron_crnhk_fahi_cron_job_info#:#Cron-Job für das Importieren von Benutzern, Kategorien, Kursen, Gruppen, Mitgliedschaften und Kursinformationen. 
