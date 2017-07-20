@@ -149,7 +149,7 @@ class ilFAHImporter
 			if(!$this->isCourseInfoFile($file))
 			{
 				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
-				rename($file, $this->settings->getBackupDir().'/'.basename($file));
+				rename($file, $this->settings->getBackupDir());
 			}
 			else
 			{
@@ -195,6 +195,7 @@ class ilFAHImporter
 					
 					case self::TYPE_MEM:
 						$membership_importer = new ilFAHMembershipComponentImporter();
+						$membership_importer->import($a_file);
 						$membership_importer->import($a_file);
 						break;
 					
