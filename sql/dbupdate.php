@@ -68,3 +68,34 @@ if(!$ilDB->tableExists('cron_crnhk_fahi_info'))
 	$ilDB->createSequence('cron_crnhk_fahi_map');
 }
 ?>
+<#3>
+<?php
+if(!$ilDB->tableExists('cron_crnhk_fahi_grp'))
+{
+	$ilDB->createTable('cron_crnhk_fahi_grp',
+		array(
+			'id'	=>	
+				array(
+					'type'		=> 'integer',
+					'length'	=> 4,
+					'default'	=> 0,
+					'notnull'	=> true
+				),
+			'import_id'	=>
+				array(
+					'type'		=> 'text',
+					'length'	=> 64,
+					'notnull'	=> false
+				),
+			'parent_id'	=>
+				array(
+					'type'		=> 'integer',
+					'length'	=> 4,
+					'notnull'	=> true
+				)
+		)
+	);
+	$ilDB->addPrimaryKey('cron_crnhk_fahi_grp', array('id'));
+	$ilDB->createSequence('cron_crnhk_fahi_grp');
+}
+?>

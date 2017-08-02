@@ -42,12 +42,16 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			$membership_info = [];
 			$membership_info['id'] = (string) $membership_element->sourcedid->id;
 			
-			// ignore direct course membership assignments, since these only 
-			// assign groups
+			// ignore direct course membership assignments, since these 
+			// membership objects do only contain groups
 			if(strcmp(substr($membership_info['id'],-2), '_R') === 0)
 			{
-				$this->logger->info('Ignoring direct course membership assignments.');
+				$this->logger->info('Ignoring direct course membership assignments for id: ' . $membership_info['id']);
 				continue;
+			}
+			else
+			{
+				$this->logger->info('Handling membership assignment: ' . $membership_info['id']);
 			}
 			
 			$membership_info['members'] = [];
@@ -66,34 +70,36 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 	protected function refreshMembership($membership_info)
 	{
 		$this->logger->dump($membership_info);
-		
 		$GLOBALS['DIC']->rbac()->review()->clearCaches();
 		
-		include_once './Services/Membership/classes/class.ilParticipants.php';
-		$obj_id = $this->lookupObjId($membership_info['id']);
-		if(!$obj_id)
+		
+		// get parent ref_id by group
+		$shadow = ilFAHShadowGroup::getInstanceByImportId($membership_info['id']);
+		if(!$shadow->exists())
 		{
-			$this->logger->warning('Cannot find course/group for import id: ' . $membership_info['id']);
+			$this->logger->notice('Cannot find shadow group for id: ' . $membership_info['id']);
 			return false;
 		}
-		$part = ilParticipants::getInstanceByObjId($obj_id);
-		$type = ilObject::_lookupType($obj_id);
+		$ref_id = $shadow->getParentId();
+		$obj_id = ilObject::_lookupObjId($ref_id);
 		
-		$ref_id = $this->lookupReferenceId($obj_id);
-		$parent_part = null;
-		if($ref_id)
+		if(!$obj_id)
 		{
-			$parent_ref_id = $GLOBALS['tree']->getParentId($ref_id);
-			$parent_type = ilObject::_lookupType($parent_ref_id, true);
-			if($parent_type == 'crs')
-			{
-				$parent_part = ilParticipants::getInstanceByObjId(ilObject::_lookupObjId($parent_ref_id));
-			}
+			$this->logger->notice('No obj_id found for '. $membership_info['id']);
+			return false;
+		}
+		
+		include_once './Services/Membership/classes/class.ilParticipants.php';
+		$parent_part = ilParticipants::getInstanceByObjId($obj_id);
+		if(!$parent_part instanceof ilCourseParticipants)
+		{
+			$this->logger->notice('Cannot create partipants object for ref_id: ' . $ref_id);
+			return false;
 		}
 		
 		// desassign all users with import id that are not mentioned in membership info
-		foreach($part->getParticipants() as $user_id)
-		{
+		foreach($parent_part->getParticipants() as $user_id)
+		{	
 			$import_id = ilObject::_lookupImportId($user_id);
 			$this->logger->debug('Assigned user import id is: ' . $import_id);
 			if(
@@ -101,15 +107,23 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				!in_array($import_id, $membership_info['members'])
 			)
 			{
-				// deassign
-				$this->logger->info('Deassigning user with import id:'.$import_id);
-				$part->delete($user_id);
-				if($parent_part instanceof ilCourseParticipants)
+				$last_three = substr($membership_info['id'], -3);
+				if(strcmp($last_three, 'DOZ') === 0)
 				{
-					$this->logger->info('Deassning user from parent course.');
-					$parent_part->delete($user_id);
+					if($parent_part->isAdmin($user_id))
+					{
+						$this->logger->info('Deassigning user with import id:'.$import_id);
+						$parent_part->delete($user_id);
+					}
 				}
-				
+				else
+				{
+					if(!$parent_part->isAdmin($user_id))
+					{
+						$this->logger->info('Deassigning user with import id:'.$import_id);
+						$parent_part->delete($user_id);
+					}
+				}
 			}
 		}
 		
@@ -122,71 +136,24 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				$this->logger->warning('Cannot find user with import id: ' . $import_id);
 				continue;
 			}
-			if($part->isAssigned($usr_id))
+			if($parent_part->isAssigned($usr_id))
 			{
-				$this->logger->debug('User with import id: ' . $import_id.' is already assigned to course/group '. $obj_id);
-				if($parent_part instanceof ilCourseParticipants)
-				{
-					$last_three = substr($membership_info['id'], -3);
-					if(strcmp($last_three, 'DOZ') === 0)
-					{
-						if(!$parent_part->isAdmin($usr_id))
-						{
-							$this->logger->info('Assigned user as admin in parent course.');
-							$parent_part->add($usr_id, IL_CRS_ADMIN);
-						}
-					}
-					elseif(!$parent_part->isAssigned($usr_id))
-					{
-						$this->logger->info('Assigned user as member in parent course.');
-						$parent_part->add($usr_id, IL_CRS_MEMBER);
-					}
-				}
-				continue;
+				$this->logger->debug('User with import id: ' . $import_id.' is already assigned to course '. $obj_id);
 			}
 			
-			
-			switch($type)
+			// admin group
+			$last_three = substr($membership_info['id'], -3);
+			if(strcmp($last_three, 'DOZ') === 0)
 			{
-				case 'crs':
-					$this->logger->info('Assigning user ' . $usr_id . ' to crs.');
-					$part->add($usr_id, IL_CRS_MEMBER);
-					break;
-				
-				case 'grp':
-					$this->logger->info('Assigning user ' . $usr_id . ' to grp.');
-					$part->add($usr_id, IL_GRP_MEMBER);
-					break;
-			}
-			
-			if($parent_part instanceof ilCourseParticipants)
-			{
-				$last_three = substr($membership_info['id'], -3);
-				if(strcmp($last_three, 'DOZ') === 0)
-				{
-					$this->logger->debug('Assign to parent course...');
-					if(!$parent_part->isAdmin($usr_id))
-					{
-						$this->logger->info('Assigned user as admin in parent course.');
-						$parent_part->add($usr_id, IL_CRS_ADMIN);
-					}
-					elseif(!$parent_part->isAssigned($usr_id))
-					{
-						$this->logger->info('Assigned user as member in parent course.');
-						$parent_part->add($usr_id, IL_CRS_MEMBER);
-					}
-				}
+				$this->logger->info('Assigning user ' . $usr_id . ' as course admin.');
+				$parent_part->add($usr_id,IL_CRS_ADMIN);
 			}
 			else
 			{
-				$this->logger->debug('Parent participants not found');
+				$this->logger->info('Assigning user ' . $usr_id . ' as course member.');
+				$parent_part->add($usr_id,IL_CRS_MEMBER);
 			}
 		}
-		
-		// finally delete conenction user and currrent user
-		$part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));
-		$part->delete($GLOBALS['DIC']->user()->getId());
-		
 		if($parent_part instanceof ilParticipants)
 		{
 			$parent_part->delete(ilObjUser::_lookupId($this->settings->getSoapUser()));

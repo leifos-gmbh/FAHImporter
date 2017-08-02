@@ -139,52 +139,26 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 		$obj_id = $this->lookupObjId($grp_info['id'], 'grp');
 		if($obj_id)
 		{
-			$do_create = false;
+			// this is a deprecated group => remove it
+			$this->logger->info('Removing deprecated group.');
+			$this->soap->call(
+				'removeFromSystemByImportId',
+				[
+					$this->soap_session,
+					$grp_info['id']
+				]
+			);
 		}
-		else
-		{
-			$do_create = true;
-		}
-		$writer->xmlStartTag(
-			'Object', 
-			array(
-				'obj_id' => $obj_id,
-				'type' => 'grp'
-			)
-		);
-		$writer->xmlElement('Title',[], $grp_info['title']);
-		$writer->xmlElement('ImportId',[], $grp_info['id']);
-		$writer->xmlEndTag('Object');
-		$writer->xmlEndTag('Objects');
 		
-		if($do_create)
-		{
-			$this->logger->info('Calling create for: '. $writer->xmlDumpMem(false));
-			
-			$parent_id = $this->lookupParentId($grp_info['parent_id']);
-			$this->soap->call(
-					'addObject',
-					array(
-						$this->soap_session,
-						$parent_id,
-						$writer->xmlDumpMem(false)
-					)
-			);
-			
-		}
-		else
-		{
-			$this->logger->info('Calling update for: '. $writer->xmlDumpMem(false));
+		// create/update shadow entry
+		$parent_id = $this->lookupParentId($grp_info['parent_id']);
 
-			$this->soap->call(
-					'updateObjects',
-					array(
-						$this->soap_session,
-						$writer->xmlDumpMem(false)
-					)
-			);
-			
-		}
+		$shadow = ilFAHShadowGroup::getInstanceByImportId($grp_info['id']);
+		$shadow->setParentId($parent_id);
+		$shadow->persist();
+		
+		$this->logger->info('Added new shadow group for: ' . $grp_info['id']. ' with parent reference: ' . $grp_info['parent_id']);
+		return true;
 	}
 }
 ?>
