@@ -2,7 +2,7 @@
 // alphanumerical ID of the plugin; never change this
 $id = "fahi";
 // code version; must be changed for all code changes
-$version = '5.2.10';
+$version = '5.2.12';
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
 $ilias_min_version = "5.2.0";
