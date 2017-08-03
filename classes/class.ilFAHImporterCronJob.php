@@ -78,7 +78,9 @@ class ilFAHImporterCronJob extends ilCronJob
 		}
 		catch(ilException $e)
 		{
+			$GLOBALS['DIC']->logger()->fahi()->error('Cron job failed with message:' . $e->getMessage());
 			$result->setStatus(ilCronJobResult::STATUS_CRASHED);
+			$result->setMessage($e->getMessage());
 		}
 		return $result;
 	}

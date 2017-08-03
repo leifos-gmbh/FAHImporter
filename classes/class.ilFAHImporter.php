@@ -102,12 +102,25 @@ class ilFAHImporter
 		if(!$input)
 		{
 			$this->releaseLock();
-			throw new ilFAHImportException(ilFAHImporterPlugin::getInstance()->txt('err_import_no_input'));
+			$this->logger->info('No input files found.');
+			// no exception required
+			//throw new ilFAHImportException(ilFAHImporterPlugin::getInstance()->txt('err_import_no_input'));
+			return;
+			
 		}
 		
 		foreach($input as $input_file)
 		{
 			try {
+				
+				$file = new SplFileInfo($input_file);
+				if(!$file->getSize())
+				{
+					$this->logger->warning('Handling: ' . $file->getFilename());
+					$this->logger->warning('Found empty file. no further processing');
+					continue;
+				}
+				
 				if($this->isCourseInfoFile($input_file))
 				{
 					$info_importer = new ilFAHCourseInfoComponentImporter();
@@ -149,7 +162,7 @@ class ilFAHImporter
 			if(!$this->isCourseInfoFile($file))
 			{
 				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
-				rename($file, $this->settings->getBackupDir());
+				rename($file, $this->settings->getBackupDir().'/'.  basename($file));
 			}
 			else
 			{
