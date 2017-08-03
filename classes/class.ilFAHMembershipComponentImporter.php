@@ -89,11 +89,17 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			return false;
 		}
 		
-		include_once './Services/Membership/classes/class.ilParticipants.php';
-		$parent_part = ilParticipants::getInstanceByObjId($obj_id);
-		if(!$parent_part instanceof ilCourseParticipants)
-		{
-			$this->logger->notice('Cannot create partipants object for ref_id: ' . $ref_id);
+		try {
+			include_once './Services/Membership/classes/class.ilParticipants.php';
+			$parent_part = ilParticipants::getInstanceByObjId($obj_id);
+			if(!$parent_part instanceof ilCourseParticipants)
+			{
+				$this->logger->notice('Cannot create partipants object for ref_id: ' . $ref_id);
+				return false;
+			}
+		}
+		catch(InvalidArgumentException $e) {
+			$this->logger->notice('Cannot create partipants object for ref_id: ' . $ref_id.' -> '. $e->getMessage());
 			return false;
 		}
 		
