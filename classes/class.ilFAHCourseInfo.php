@@ -57,7 +57,10 @@ class ilFAHCourseInfo
 		$info = [];
 		while($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT))
 		{
-			$info[$row->keyword] = $row->value;
+			if(strlen(trim($row->value)))
+			{
+				$info[$row->keyword] = $row->value;
+			}
 		}
 		return $info;
 	}
