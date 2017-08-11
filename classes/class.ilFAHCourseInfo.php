@@ -51,7 +51,8 @@ class ilFAHCourseInfo
 		$db = $GLOBALS['DIC']->database();
 		
 		$query = 'SELECT * FROM '.self::DB_TABLE_NAME.' '.
-			'WHERE import_id = '.$db->quote($a_id,'integer');
+			'WHERE import_id = '.$db->quote($a_id,'integer').' '.
+			'ORDER by info_id';
 		$res = $db->query($query);
 		
 		$info = [];
