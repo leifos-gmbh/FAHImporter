@@ -162,11 +162,12 @@ class ilFAHImporter
 			if(!$this->isCourseInfoFile($file))
 			{
 				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
-				rename($file, $this->settings->getBackupDir().'/'.  basename($file));
+				rename($file, $this->settings->getBackupDir().'/'. basename($file));
 			}
 			else
 			{
-				$this->logger->debug($file.' is a course info file.');
+				$this->logger->info('Moving file from ' . $file .' to ' . $this->settings->getBackupDir().'/'.basename($file));
+				rename($file, $this->settings->getBackupDir().'/'. basename($file));
 			}
 		}
 		$this->logger->debug('Backup completed');
