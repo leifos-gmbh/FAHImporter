@@ -36,6 +36,9 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 	 */
 	protected function parseXml()
 	{
+		include_once './Services/Object/classes/class.ilObjectFactory.php';
+		$object_factory = new ilObjectFactory();
+		
 		$this->logger->debug('Parsing Lehrgänge.xml');
 		foreach($this->root->xpath('//termine') as $termin)
 		{
@@ -57,13 +60,26 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 			
 			if(!$ref_id)
 			{
-				$this->logger->notice('Cannot find course for: '.$import_id);
+				$this->logger->notice('Cannot find reference for: '.$import_id);
 				continue;
 			}
 			
 			// delete old entries
 			ilFAHCourseInfo::deleteByImportId($ref_id);
-			
+
+			$course = $object_factory->getInstanceByRefId($ref_id);
+			if(!$course instanceof ilObjCourse)
+			{
+				$this->logger->warning('Cannot create course instance for: ' . $import_id);
+				continue;
+			}
+			// update description
+			if(strlen((string) $termin['bezeichnung']))
+			{
+				$course->setDescription((string) $termin['bezeichnung']);
+				$course->update();
+			}
+
 			// date of appointment
 			$date_begin = (string) $termin->terminteil->beginndatum;
 			$date_arr = explode('.', $date_begin);
