@@ -276,6 +276,10 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 			if($form->getInput('selection') == ilFAHImporter::IMPORT_ALL)
 			{
 				$import->addType(ilFAHImporter::TYPE_USR);
+				$import->addType(ilFAHImporter::TYPE_CAT);
+				$import->addType(ilFAHImporter::TYPE_CRS);
+				$import->addType(ilFAHImporter::TYPE_GRP);
+				$import->addType(ilFAHImporter::TYPE_MEM);
 			}
 			else
 			{

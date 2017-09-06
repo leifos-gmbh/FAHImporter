@@ -77,7 +77,20 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 			$a_parent_id = substr($a_parent_id,0, -1);
 			return $a_parent_id.'R';
 		}
-		$this->logger->debug('Parent id:_' . $a_parent_id .' is not replaced.');
+		if(strcmp($a_parent_id, 'Zielgruppen') === 0)
+		{
+			// replace 'Zielgruppen' by 'AlleDozenten'
+			$this->logger->debug($a_parent_id.': matches Zielgruppen and is replaced by "AlleDozenten"');
+			return 'AlleDozenten';
+		}
+		if(strcmp($a_parent_id, 'Benutzergruppen') === 0)
+		{
+			// replace 'Benutzergruppen' by 'AlleBenutzer'
+			$this->logger->debug($a_parent_id.': matches Benutzergruppen and is replaced by "AlleBenutzer"');
+			return 'AlleBenutzer';
+		}
+		
+		$this->logger->debug('Parent id: ' . $a_parent_id .' is not replaced.');
 		return $a_parent_id;
 	}
 
@@ -91,8 +104,7 @@ class ilFAHGroupComponentImporter extends ilFAHComponentImporter
 		if(strcmp('AlleBenutzer', $a_id) === 0)
 		{
 			$this->logger->debug($a_id. ' matches "AlleBenutzer"');
-			$this->logger->info('Ignoring group:' . $a_id);
-			return false;
+			return true;
 		}
 		if(strcmp('AlleTeilnehmer', $a_id) === 0)
 		{
