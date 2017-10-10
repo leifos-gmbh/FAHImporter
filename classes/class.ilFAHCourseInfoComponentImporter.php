@@ -79,51 +79,81 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 				$course->setDescription((string) $termin['bezeichnung']);
 				$course->update();
 			}
+			
+			
+			$info_string = [];
+			foreach($termin->terminteil as $single_appointment)
+			{
+				// date of appointment
+				$date_begin = (string) $single_appointment->beginndatum;
+				$date_arr = explode('.', $date_begin);
 
-			// date of appointment
-			$date_begin = (string) $termin->terminteil->beginndatum;
-			$date_arr = explode('.', $date_begin);
+				$dt['year'] = $date_arr[2];
+				$dt['mon'] = $date_arr[1];
+				$dt['mday'] = $date_arr[0];
+
+				$date_begin = (string) $single_appointment->beginnuhrzeit;
+				$date_arr = explode(':', $date_begin);
+
+				$dt['hours'] = $date_arr[0];
+				$dt['minutes'] = $date_arr[1];
+
+				$begin = new ilDateTime($dt, IL_CAL_FKT_GETDATE);
+
+				// date of appointment
+				$date_begin = (string) $single_appointment->endedatum;
+				$date_arr = explode('.', $date_begin);
+
+				$dt['year'] = $date_arr[2];
+				$dt['mon'] = $date_arr[1];
+				$dt['mday'] = $date_arr[0];
+
+				$date_begin = (string) $single_appointment->endeuhrzeit;
+				$date_arr = explode(':', $date_begin);
+
+				$dt['hours'] = $date_arr[0];
+				$dt['minutes'] = $date_arr[1];
+
+				$end = new ilDateTime($dt, IL_CAL_FKT_GETDATE);
+
+				ilDatePresentation::setUseRelativeDates(false);
+				$dt_string = ilDatePresentation::formatPeriod($begin, $end);
+				
+				if(strlen($dt_string))
+				{
+					$info_string[] = $dt_string;
+				}
+				
+				$location = [];
+				$location[] = (string) $single_appointment->firma;
+				$location[] = (string) $single_appointment->strasse;
+				$location[] = (string) $single_appointment->ort['plz'] .' '. (string) $single_appointment->ort;
+				$location[] = (string) $single_appointment->firmaweb;
+
+				$has_location = false;
+				foreach($location as $entry)
+				{
+					if(strlen($entry))
+					{
+						$has_location = true;
+						$info_string[] = $entry;
+					}
+				}
+				if($has_location)
+				{
+					$info_string[] = '<br />';
+				}
+			}
 			
-			$dt['year'] = $date_arr[2];
-			$dt['mon'] = $date_arr[1];
-			$dt['mday'] = $date_arr[0];
-			
-			$date_begin = (string) $termin->terminteil->beginnuhrzeit;
-			$date_arr = explode(':', $date_begin);
-			
-			$dt['hours'] = $date_arr[0];
-			$dt['minutes'] = $date_arr[1];
-			
-			$begin = new ilDateTime($dt, IL_CAL_FKT_GETDATE);
-			
-			// date of appointment
-			$date_begin = (string) $termin->terminteil->endedatum;
-			$date_arr = explode('.', $date_begin);
-			
-			$dt['year'] = $date_arr[2];
-			$dt['mon'] = $date_arr[1];
-			$dt['mday'] = $date_arr[0];
-			
-			$date_begin = (string) $termin->terminteil->endeuhrzeit;
-			$date_arr = explode(':', $date_begin);
-			
-			$dt['hours'] = $date_arr[0];
-			$dt['minutes'] = $date_arr[1];
-			
-			$end = new ilDateTime($dt, IL_CAL_FKT_GETDATE);
-			
-			ilDatePresentation::setUseRelativeDates(false);
-			$dt_string = ilDatePresentation::formatPeriod($begin, $end);
-			
-			if(strlen($dt_string))
+			if(count((array) $info_string))
 			{
 				$info = new ilFAHCourseInfo();
 				$info->setImportId($ref_id);
-				$info->setKeyword('Seminartermin');
-				$info->setValue($dt_string);
+				$info->setKeyword('Seminartermine');
+				$info->setValue(implode('<br />', (array) $info_string));
 				$info->create();
 			}
-			
+
 			// create new meta data entry
 			$info = new ilFAHCourseInfo();
 			$info->setImportId($ref_id);
@@ -142,30 +172,6 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 			$info->setKeyword('Lernziel');
 			$info->setValue((string) $termin->lernziel);
 			$info->create();
-			
-			// create an address info
-			$location = [];
-			$location[] = (string) $termin->terminteil->firma;
-			$location[] = (string) $termin->terminteil->strasse;
-			$location[] = (string) $termin->terminteil->ort['plz'] .' '. (string) $termin->terminteil->ort;
-			$location[] = (string) $termin->terminteil->firmaweb;
-			
-			$address = [];
-			foreach($location as $entry)
-			{
-				if(strlen($entry))
-				{
-					$address[] = $entry;
-				}
-			}
-			if(count($address))
-			{
-				$info = new ilFAHCourseInfo();
-				$info->setImportId($ref_id);
-				$info->setKeyword('Seminarort');
-				$info->setValue(implode("<br />", $address));
-				$info->create();
-			}
 		}
 		
 	}
