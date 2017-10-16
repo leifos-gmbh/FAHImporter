@@ -144,6 +144,11 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			}
 			if($parent_part->isAssigned($usr_id))
 			{
+				if(strcmp($last_three, 'DOZ') === 0)
+				{
+					$this->logger->debug('Update contact...');
+					$parent_part->updateContact($usr_id, 1);
+				}
 				$this->logger->debug('User with import id: ' . $import_id.' is already assigned to course '. $obj_id);
 			}
 			
@@ -153,6 +158,7 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			{
 				$this->logger->info('Assigning user ' . $usr_id . ' as course admin.');
 				$parent_part->add($usr_id,IL_CRS_ADMIN);
+				$parent_part->updateContact($usr_id, 1);
 			}
 			else
 			{
