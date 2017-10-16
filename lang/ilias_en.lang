@@ -1,1 +1,33 @@
-
+tab_settings#:#Einstellungen
+tab_import#:#Import
+tbl_settings#:#Einstellungen
+tbl_setting_lock#:#Import-Lock
+tbl_setting_soap_user#:#SOAP-User
+tbl_setting_soap_pass#:#SOAP-Password
+form_tab_settings_loglevel#:#Log-Level
+form_tab_settings_import_directory#:#Import-Verzeichnis
+tbl_settings_backup#:#Verzeichnis für Backup-Dateien
+cron_interval#:#Aktualisierungsintervall
+cron#:#Aktualisierung per Cron-job
+tbl_import#:#Import starten
+import_selection#:#Auswahl zum Import
+import_selection_all#:#Alles importieren
+import_selection_selected#:#Nur ausgewählte Objekte importieren
+btn_import#:#Import starten
+import_success#:#Die Aktualisierung wurde erfolgreich durchgeführt
+err_import_locked#:#Der Import kann nicht gestartet werden, da ein anderer Importvorgang läuft.
+err_import_no_input#:#Ein Import konnte nicht durchgeführt werden, da keine neue Inmportdatei vorliegt.
+type_membership#:#Mitgliedschaften
+add_new_mapping#:#Neue Kurszuordnung
+map_col_template#:#Template-Kurs
+map_col_prefix#:#Prefix
+map_table_title#:#Kurszuordnungen
+tbl_new_mapping#:#Neue Zuordnung erstellen
+mapping_crs_prefix#:#Prefix für Zuordnung
+mapping_crs_template#:#Template-Kurs
+mapping_crs_template_info#:#Bitte geben Sie die ref_id eines Kurses ein.
+tab_mappings#:#Kurszuordnungen
+type_crs_info#:#Kursinformationen
+default_course_template#:#Standard-Kursvorlage
+default_course_template_info#:#Kurstemplate für zu importierende Kurse, für deren ID keine Zuordnung definiert ist. Siehe "Kurszuordnungen".
+cron_crnhk_fahi_cron_job_info#:#Cron-Job für das Importieren von Benutzern, Kategorien, Kursen, Gruppen, Mitgliedschaften und Kursinformationen.
