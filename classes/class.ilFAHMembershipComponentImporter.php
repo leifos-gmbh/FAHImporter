@@ -103,6 +103,9 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			return false;
 		}
 		
+		// Info about tutor groups (DOZ);
+		$last_three = substr($membership_info['id'], -3);
+		
 		// desassign all users with import id that are not mentioned in membership info
 		foreach($parent_part->getParticipants() as $user_id)
 		{	
@@ -113,7 +116,6 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 				!in_array($import_id, $membership_info['members'])
 			)
 			{
-				$last_three = substr($membership_info['id'], -3);
 				if(strcmp($last_three, 'DOZ') === 0)
 				{
 					if($parent_part->isAdmin($user_id))
@@ -153,7 +155,6 @@ class ilFAHMembershipComponentImporter extends ilFAHComponentImporter
 			}
 			
 			// admin group
-			$last_three = substr($membership_info['id'], -3);
 			if(strcmp($last_three, 'DOZ') === 0)
 			{
 				$this->logger->info('Assigning user ' . $usr_id . ' as course admin.');
