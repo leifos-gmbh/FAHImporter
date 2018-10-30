@@ -81,10 +81,10 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
 		$writer->xmlEndTag('Users');
 		return $writer;
 	}
-	
+
 	/**
-	 * Xml writer
 	 * @param ilXmlWriter $writer
+	 * @throws ilFAHSoapConnectionException | ilFAHImportException
 	 */
 	protected function updateUser(ilXmlWriter $writer)
 	{
@@ -103,6 +103,16 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
 					)
 				);
 			$this->logger->info('Received response: '. $res);
+
+			if(stristr($res, 'Login is not unique'))
+			{
+				$this->logger->error('One or more usernames are not unique.');
+				$this->logger->error('Update aborted.');
+				throw new ilFAHImportException(
+					'Cannot update user data. Received response: ' . htmlentities($res)
+				);
+			}
+
 		} 
 		catch (Exception $ex) {
 			$this->logger->error('User import failed with message: ' . $ex->getMessage());
