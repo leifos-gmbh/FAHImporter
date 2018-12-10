@@ -141,7 +141,9 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 				$this->logger->notice($crs_info['parent_id'].' is not imported. Ignoring course update.');
 				return false;
 			}
-			
+
+
+
 			$new_ref_id = $this->copyTemplateCourse($crs_info, $parent_id);
 			if($new_ref_id)
 			{
@@ -198,33 +200,31 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 	protected function copyTemplateCourse($crs_info, $parent_id)
 	{
 		$template_id = ilFAHMappings::getInstance()->getTemplateForTitle($crs_info['title']);
-		if(!$template_id)
-		{
-			$this->logger->info('No mapping found for crs title: ' . $crs_info['title'].', using default course template');
+		if (!$template_id) {
+			$this->logger->info('No mapping found for crs title: ' . $crs_info['title'] . ', using default course template');
 			$template_id = $this->settings->getDefaultCourse();
 		}
-		if(!$template_id)
-		{
+		if (!$template_id) {
 			$this->logger->fatal('No default course template found');
 			return false;
 		}
-		
-		
-		$this->logger->info('Found mapping template course '. $template_id.' for title: ' . $crs_info['title']);
-		
+
+
+		$this->logger->info('Found mapping template course ' . $template_id . ' for title: ' . $crs_info['title']);
+
 		$copy_writer = new ilXmlWriter();
 		$copy_writer->xmlStartTag(
-			'Settings', 
+			'Settings',
 			array(
 				'source_id' => $template_id,
 				'target_id' => $parent_id,
+				'import_id' => $crs_info['id'],
 				'default_action' => 'COPY'
 			)
 		);
-		
+
 		$node_data = $GLOBALS['DIC']->repositoryTree()->getNodeData($template_id);
-		foreach($GLOBALS['DIC']->repositoryTree()->getSubTree($node_data,false) as $node)
-		{
+		foreach ($GLOBALS['DIC']->repositoryTree()->getSubTree($node_data, false) as $node) {
 			$copy_writer->xmlElement(
 				'Option',
 				array(
@@ -233,49 +233,74 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 				)
 			);
 		}
-		
+
 		$copy_writer->xmlEndTag('Settings');
 		$this->logger->dump($copy_writer->xmlDumpMem(true));
-		
+
 		include_once './webservice/soap/classes/class.ilCopyWizardSettingsXMLParser.php';
 		$xml_parser = new ilCopyWizardSettingsXMLParser($copy_writer->xmlDumpMem(false));
 		try {
 			$xml_parser->startParsing();
-		} 
-		catch (ilSaxParserException $se)
-		{
+		} catch (ilSaxParserException $se) {
 			$this->logger->error($se->getMessage());
 			throw $se;
 		}
 
 		$options = $xml_parser->getOptions();
-		
+
 		$this->logger->dump($options);
-		
+
 		$source_object = ilObjectFactory::getInstanceByRefId($template_id);
-		if($source_object instanceof ilContainer) 
-		{
-			$session_id = $GLOBALS['ilAuthSession']->getId();
-			$client_id = IL_CLIENT_ID;
-			
-			// call container clone
-			$ret = $source_object->cloneAllObject(
-				$session_id,
-				$client_id,
-				$source_object->getType(),
-				$parent_id,
-				$template_id,
-				$options, 
-				false
-			);
-			
-			
-			
-			if(is_array($ret))
-			{
-				return $ret['ref_id'];
+
+		if ($source_object instanceof ilContainer) {
+			try {
+				$ret = $this->soap->call(
+					'copyObject',
+					array(
+						$this->soap_session,
+						$copy_writer->xmlDumpMem(false)
+					)
+				);
+			} catch (Exception $e) {
+				$this->logger->error('Cannot copy from source container: ' . $e->getMessage());
+				return 0;
 			}
+
+
+			// wait for background service
+			$this->logger->info('Course id: ' . $crs_info['id']);
+
+			$obj_id = $this->lookupObjId($crs_info['id'], 'crs');
+			$ref_id = $this->lookupReferenceId($obj_id, 'crs');
+
+			$this->logger->info('Course obj_id:  ' . $obj_id);
+			$this->logger->info('Course ref_id:  ' . $ref_id);
+
+			if ($ref_id) {
+				$this->logger->info('Recieved new target id: ' . $ret['ref_id']);
+				return $ref_id;
+			} else {
+				$this->logger->warning('Did not receive target id');
+				return 0;
+			}
+
+			/**
+			 * $session_id = $GLOBALS['ilAuthSession']->getId();
+			 * $client_id = IL_CLIENT_ID;
+			 *
+			 * // call container clone
+			 * $ret = $source_object->cloneAllObject(
+			 * $session_id,
+			 * $client_id,
+			 * $source_object->getType(),
+			 * $parent_id,
+			 * $template_id,
+			 * $options,
+			 * false
+			 * );
+			 **/
 		}
+		$this->logger->warning('Source object is not of type container.');
 		return 0;
 	}
 }
