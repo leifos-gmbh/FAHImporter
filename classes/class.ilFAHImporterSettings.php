@@ -37,7 +37,6 @@ class ilFAHImporterSettings
 	
 	/**
 	 * Constructor
-	 * @global type $DIC
 	 */
 	protected function __construct()
 	{

@@ -49,15 +49,16 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 
 		}
 	}
-	
+
 	/**
-	 * Show settings screen
-	 * @global type $tpl
-	 * @global type $ilTabs 
+	 * @param ilPropertyFormGUI|null $form
 	 */
 	protected function configure(ilPropertyFormGUI $form = null)
 	{
-		global $tpl, $ilTabs;
+		global $DIC;
+
+		$tpl = $DIC->ui()->mainTemplate();
+		$ilTabs = $DIC->tabs();
 		
 		$ilTabs->activateTab('settings');
 		
@@ -72,11 +73,13 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 	
 	/**
 	 * Init configuration form
-	 * @global type $ilCtrl 
 	 */
 	protected function initConfigurationForm()
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
+
+		$ilCtrl = $DIC->ctrl();
+		$lng = $DIC->language();
 		
 		$settings = ilFAHImporterSettings::getInstance();
 		
@@ -208,13 +211,14 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 	
 	/**
 	 * Show import settings
-	 * @global type $ilCtrl
-	 * @global type $lng
 	 * @return \ilPropertyFormGUI
 	 */
 	protected function initImportForm()
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
+
+		$ilCtrl = $DIC->ctrl();
+		$lng = $DIC->language();
 		
 		include_once './Services/Form/classes/class.ilPropertyFormGUI.php';
 		
@@ -266,7 +270,10 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 	
 	protected function doImport()
 	{
-		global $lng, $ilCtrl;
+		global $DIC;
+
+		$lng = $DIC->language();
+		$ilCtrl = $DIC->ctrl();
 		
 		$form = $this->initImportForm();
 		$import = ilFAHImporter::getInstance();

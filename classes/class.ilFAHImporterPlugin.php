@@ -18,12 +18,13 @@ class ilFAHImporterPlugin extends ilCronHookPlugin
 
 	/**
 	 * Get singleton instance
-	 * @global ilPluginAdmin $ilPluginAdmin
 	 * @return \ilFAHImporterPlugin
 	 */
 	public static function getInstance()
 	{
-		global $ilPluginAdmin;
+		global $DIC;
+
+		$ilPluginAdmin = $DIC['ilPluginAdmin'];
 
 		if(self::$instance)
 		{
@@ -100,7 +101,6 @@ class ilFAHImporterPlugin extends ilCronHookPlugin
 	
 	/**
 	 * Get cron job instances
-	 * @global type $ilLog
 	 * @return \ilViPLabCronJob[]
 	 */
 	public function getCronJobInstances()

@@ -172,14 +172,15 @@ abstract class ilFAHComponentImporter
 	
 	/**
 	 * Lookup obj id
-	 * @global type $ilDB
 	 * @param type $a_id
 	 * @param type $a_type
 	 * @return int
 	 */
 	protected function lookupObjId($a_id, $a_type = '')
 	{
-		global $ilDB;
+		global $DIC;
+
+		$ilDB = $DIC->database();
 		
 		$query = 'SELECT obj_id FROM object_data '.
 				'WHERE import_id = '.$ilDB->quote($a_id,'text').' ';
