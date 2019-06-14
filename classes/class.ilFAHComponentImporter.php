@@ -109,7 +109,7 @@ abstract class ilFAHComponentImporter
 		// write session
 		ilSession::_writeData(
 			$GLOBALS['DIC']['ilAuthSession']->getId(),
-			$_SESSION
+			serialize($_SESSION)
 		);
 		
 		$this->soap = new ilSoapClient();
