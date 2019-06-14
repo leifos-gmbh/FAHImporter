@@ -108,7 +108,7 @@ abstract class ilFAHComponentImporter
 
 		// write session
 		ilSession::_writeData(
-			$GLOBALS['ilAuthSession']->getId(),
+			$GLOBALS['DIC']['ilAuthSession']->getId(),
 			$_SESSION
 		);
 		

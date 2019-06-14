@@ -255,7 +255,7 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		$source_object = ilObjectFactory::getInstanceByRefId($template_id);
 		if($source_object instanceof ilContainer) 
 		{
-			$session_id = $GLOBALS['ilAuthSession']->getId();
+			$session_id = $GLOBALS['DIC']['ilAuthSession']->getId();
 			$client_id = IL_CLIENT_ID;
 			
 			// call container clone
