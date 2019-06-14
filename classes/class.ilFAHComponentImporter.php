@@ -105,6 +105,12 @@ abstract class ilFAHComponentImporter
 	public function initSoapConnection()
 	{
 		include_once './Services/WebServices/SOAP/classes/class.ilSoapClient.php';
+
+		// write session
+		ilSession::_writeData(
+			$GLOBALS['ilAuthSession']->getId(),
+			$_SESSION
+		);
 		
 		$this->soap = new ilSoapClient();
 		$this->soap->setErrorHandlingForClientCalls(ilSoapClient::ERROR_HANDLING_FOR_CLIENT_CALLS_EXCEPTION);
