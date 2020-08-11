@@ -44,7 +44,7 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 		{
 			$this->logger->debug('Handling: ' . $termin['id'] .' ' . $termin['bezeichnung']);
 			// import id is stored in "kennzeichen"
-			$import_id = $termin->kennziffer['id'];
+			$kennziffer = $import_id = $termin->kennziffer['id'];
 			$this->logger->info('Importing import_id: ' . $import_id);
 			// create course_id
 			$import_id = $import_id.'_R';
@@ -76,7 +76,8 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 			// update description
 			if(strlen((string) $termin['bezeichnung']))
 			{
-				$course->setDescription((string) $termin['bezeichnung']);
+			    $course->setTitle((string) $kennziffer . ' ' . (string) $termin['bezeichnung']);
+				$course->setDescription('');
 				$course->update();
 			}
 			
