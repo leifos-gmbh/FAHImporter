@@ -74,7 +74,7 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 				continue;
 			}
 			// update description
-			if(strlen((string) $termin['bezeichnung']))
+			if(strlen((string) $kennziffer))
 			{
 			    $course->setTitle((string) $kennziffer . ' ' . (string) $termin['bezeichnung']);
 				$course->setDescription('');
