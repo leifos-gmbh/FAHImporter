@@ -100,13 +100,16 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 		
 		
 		$obj_id = $this->lookupObjId($crs_info['id'], 'crs');
+		$title = '';
 		if($obj_id)
 		{
 			$do_create = false;
+			$title = ilObject::_lookupTitle($obj_id);
 		}
 		else
 		{
 			$do_create = true;
+			$title = $crs_info['title'];
 		}
 
 		// Meta data
@@ -122,7 +125,7 @@ class ilFAHCourseComponentImporter extends ilFAHComponentImporter
 			array(
 				'Language' => 'de'
 			),
-			$crs_info['title']
+			$title
 		);
 		$writer->xmlEndTag('General');
 		$writer->xmlEndTag('MetaData');
