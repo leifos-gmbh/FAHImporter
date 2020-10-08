@@ -239,7 +239,7 @@ class ilFAHImporterConfigGUI extends ilPluginConfigGUI
 		$sel = new ilRadioOption($this->getPluginObject()->txt('import_selection_selected'), ilFAHImporter::IMPORT_SELECTED);
 		$imp_type->addOption($sel);
 		
-		$usr = new ilCheckboxInputGUI($lng->txt('objs_usr'),'usr');
+		$usr = new ilCheckboxInputGUI($lng->txt('obj_usr'),'usr');
 		$usr->setValue(ilFAHImporter::TYPE_USR);
 		$sel->addSubItem($usr);
 
