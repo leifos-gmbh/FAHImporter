@@ -92,6 +92,11 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
                 }
             }
 			$writer->xmlElement('Email',null, (string) $user->email);
+
+			$institution = (string) $user->extension->organization;
+			if (strlen(trim($institution))) {
+			    $writer->xmlElement('Institution', null, $institution);
+            }
 			$writer->xmlEndTag('User');
 			
 			$this->logger->debug('Found: ' . (string) $user->name->n->family);
