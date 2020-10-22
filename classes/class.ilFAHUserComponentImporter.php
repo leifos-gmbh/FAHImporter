@@ -86,7 +86,7 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
                     case self::SALUATION_FR:
                         $writer->xmlElement('Gender', null, 'f');
                         break;
-                    case self:self::SALUTATION_HR:
+                    case self::SALUTATION_HR:
                         $writer->xmlElement('Gender', null, 'm');
                         break;
                 }
