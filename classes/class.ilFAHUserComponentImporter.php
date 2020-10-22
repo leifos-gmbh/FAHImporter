@@ -10,6 +10,8 @@
  */
 class ilFAHUserComponentImporter extends ilFAHComponentImporter
 {
+    const SALUTATION_HR = 'Herr';
+    const SALUATION_FR = 'Frau';
 	
 	/**
 	 * Import from file
@@ -73,6 +75,22 @@ class ilFAHUserComponentImporter extends ilFAHComponentImporter
 			$writer->xmlElement('Login',null,(string) $user->userid);
 			$writer->xmlElement('Firstname',null, (string) $user->name->n->given);
 			$writer->xmlElement('Lastname',null, (string) $user->name->n->family);
+
+			$title = (string) $user->name->n->titel;
+			if (strlen($title)) {
+			    $writer->xmlElement('Title', null, $title);
+            }
+			$gender = (string) $user->name->n->anrede;
+			if (strlen($gender)) {
+			    switch ($gender) {
+                    case self::SALUATION_FR:
+                        $writer->xmlElement('Gender', null, 'f');
+                        break;
+                    case self:self::SALUTATION_HR:
+                        $writer->xmlElement('Gender', null, 'm');
+                        break;
+                }
+            }
 			$writer->xmlElement('Email',null, (string) $user->email);
 			$writer->xmlEndTag('User');
 			
