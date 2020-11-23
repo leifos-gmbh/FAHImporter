@@ -127,6 +127,10 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 				
 				$location = [];
 				$location[] = (string) $single_appointment->firma;
+
+				if (strlen((string) $single_appointment->raum)) {
+				    $location[] = 'Raum: ' . ((string) $single_appointment->raum);
+                }
 				$location[] = (string) $single_appointment->strasse;
 				$location[] = (string) $single_appointment->ort['plz'] .' '. (string) $single_appointment->ort;
 				$location[] = (string) $single_appointment->firmaweb;
@@ -155,7 +159,7 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 				$info->create();
 			}
 
-			// create new meta data entry
+            // create new meta data entry
 			$info = new ilFAHCourseInfo();
 			$info->setImportId($ref_id);
 			$info->setKeyword('Zielgruppe');
