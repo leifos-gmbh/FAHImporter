@@ -128,11 +128,11 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 				$location = [];
 				$location[] = (string) $single_appointment->firma;
 
-				if (strlen((string) $single_appointment->raum)) {
-				    $location[] = 'Raum: ' . ((string) $single_appointment->raum);
-                }
 				$location[] = (string) $single_appointment->strasse;
 				$location[] = (string) $single_appointment->ort['plz'] .' '. (string) $single_appointment->ort;
+                if (strlen((string) $single_appointment->raum)) {
+                    $location[] = 'Raum: ' . ((string) $single_appointment->raum);
+                }
 				$location[] = (string) $single_appointment->firmaweb;
 
 				$has_location = false;
