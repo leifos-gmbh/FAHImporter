@@ -256,7 +256,6 @@ class ilFAHImporter
 				$files[] = $this->settings->getImportDirectory().'/'.$file->getFilename();
 			}
 		}
-		asort($files);
 		return $files;
 	}
 	
