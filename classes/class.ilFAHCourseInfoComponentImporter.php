@@ -79,6 +79,7 @@ class ilFAHCourseInfoComponentImporter extends ilFAHComponentImporter
 			    $course->setTitle((string) $kennziffer . ' ' . (string) $termin['bezeichnung']);
 				$course->setDescription('');
 				$course->update();
+				$this->logger->debug('Using new title: ' . (string) $kennziffer . ' ' . (string) $termin['bezeichnung']);
 			}
 			
 			
